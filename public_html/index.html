@@ -1,20 +1,128 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+<!DOCTYPE html> 
+
 <html>
     <head>
         <title>Testing wrDisplay()</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="css/wrData.css">
     </head>
-<body>
+    
+  <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.5.1/snap.svg-min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="./WrData.js"></script>
-    <script src="./GenLibPV.js"></script>
-    <div id="displayDiv"><h4>Testing wrDisplay()</h4></div>
-    </body>
+    <script src="wrController.js"></script>
+     <script src="wrDisplay.js"></script>
+     <script src="genLibPV.js"></script>
+    <h2> x1 PV Anlage Übersicht </h2>
+  <!-- Note:  
+        Using CSS to change SVG width and SVG height works with Chrome but not with Firfox 
+        For Details:  https://stackoverflow.com/questions/36363285/setting-svg-element-width-height-attributes-using-css-in-firefox
+ "  -->
+ <svg id="svgCanvas" width="535" height="370" viewBox="0 0 535 370"  preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">
+  
+    <defs>
+    <linearGradient id="button_surface1" gradientUnits="objectBoundingBox"
+      x1="1" x2="1" y1="0" y2="1">
+      <stop stop-color="#808080" offset="0"/>
+      <stop stop-color="#DDDDDD" offset="0.67"/>
+    </linearGradient>
+    
+   <linearGradient id="button_surface2" gradientUnits="objectBoundingBox"
+      x1="1" x2="1" y1="0" y2="1">
+      <stop stop-color="#00009F" offset="0"/>
+      <stop stop-color="#0000FF" offset="0.67"/>
+    </linearGradient>
+   
+    <linearGradient id="button_surface3" gradientUnits="objectBoundingBox"
+      x1="1" x2="1" y1="0" y2="1">
+      <stop stop-color="#000000" offset="0"/>
+      <stop stop-color="#606060" offset="0.67"/>
+    </linearGradient>
+     
+    <filter id="virtual_light" filterUnits="objectBoundingBox"
+      x="-0.1" y="-0.1" width="1.2" height="1.2">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="alpha_blur"/>
+
+      <!-- virtual shadow effect -->
+      <feOffset in="alpha_blur" dx="4" dy="4" result="offset_alpha_blur"/>
+
+      <!-- vitual lighting effect -->
+      <feSpecularLighting in="alpha_blur" surfaceScale="5" specularConstant="1"
+        specularExponent="20" lighting-color="#FFFFFF" result="spec_light">
+        <fePointLight x="-5000" y="-10000" z="10000"/>
+      </feSpecularLighting>
+      <feComposite in="spec_light" in2="SourceAlpha" operator="in"
+        result="spec_light"/>
+      <feComposite in="SourceGraphic" in2="spec_light"
+        operator="out" result="spec_light_fill"/>
+
+      <!-- combine effects -->
+      <feMerge>
+        <feMergeNode in="offset_alpha_blur"/>
+        <feMergeNode in="spec_light_fill"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- button content -->
+   <rect id="svgRect0" x="5" y="5" rx="15" ry="15" width="520" height="350" fill="url(#button_surface1)" stroke="#360000" filter="url(#virtual_light)"  />
+   	
+  <g id="svgGroup1" transform="translate(0,10)"  >  
+  	 <text id="svgTextHeadlineG1"  x="15" y="30" font-size="20px" font-family="Tahoma" font-weight="500"  fill="black"  >PV Igensdorf [89 kWh] </text>
+
+  	<rect id="svgRect1G1"  x="10" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect2G1" x="120" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect3G1" x="230" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect4G1" x="340" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+ 
+  	<text id="svgText1HeaderG1" x="20" y="60" font-size="11px" font-family="Tahoma" font-weight="400" fill="white"  >Tages-Produktion:</text>
+  	<text id="svgText1G1"       x="60" y="90" font-size="20px" font-family="Tahoma" font-weight="500"  fill="white"  text-anchor="middle"> -- kWh </text>
+  
+  	<text id="svgText2HeaderG1" x="130" y="60" font-size="11px" font-family="Tahoma" font-weight="400" fill="white">Akuelle Leistung: </text>      
+  	<text id="svgText2G1"       x="175" y="90" font-size="20px" font-family="Tahoma" font-weight="500"  fill="white" text-anchor="middle"> -- kWh </text>
+  
+  	<text id="svgText3HeaderG1" x="245" y="60" font-size="13px" font-family="Tahoma" font-weight="600" fill="white" >[kWh/kWp]</text>      
+  	<text id="svgText3G1"       x="280" y="90" font-size="20px" font-family="Tahoma" font-weight="500" fill="white" text-anchor="middle">0.0</text>  
+    
+  	<text id="svgText4HeaderG1" x="355" y="60" font-size="13px" font-family="Tahoma" font-weight="600"  fill="white">[kW/kWp]</text>      
+  	<text id="svgText4G1"       x="395" y="90" font-size="20px" font-family="Tahoma" font-weight="500" fill="white" text-anchor="middle">0.0</text>  
+
+  	<image id="svgTrafficLightImgG1" x="455" y="35" width="70" height="80px" href="images/tlight_green.gif"/>
+  </g> 
+  
+   <g id="svgGroup2" transform="translate(0,120)"  >  
+  	 <text id="svgTextHeadlineG2"  x="15" y="30" font-size="20px" font-family="Tahoma" font-weight="500"  fill="black"  >PV Sattelmannsburg [4,7 kWh] </text>
+
+  	<rect id="svgRect1G2"  x="10" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect2G2" x="120" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect3G2" x="230" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+  	<rect id="svgRect4G2" x="340" y="40" rx="15" ry="15" width="100" height="60"  fill="url(#button_surface2)" stroke="#360000" filter="url(#virtual_light)"/>
+ 
+  	<text id="svgText1HeaderG2" x="20" y="60" font-size="11px" font-family="Tahoma" font-weight="400" fill="white"  >Tages-Produktion:</text>
+  	<text id="svgText1G2"       x="60" y="90" font-size="20px" font-family="Tahoma" font-weight="500"  fill="white"  text-anchor="middle"> -- kWh </text>
+  
+  	<text id="svgText2HeaderG2" x="130" y="60" font-size="11px" font-family="Tahoma" font-weight="400" fill="white">Akuelle Leistung: </text>      
+  	<text id="svgText2G2"       x="175" y="90" font-size="20px" font-family="Tahoma" font-weight="500"  fill="white" text-anchor="middle"> -- kWh </text>
+  
+  	<text id="svgText3HeaderG2" x="245" y="60" font-size="13px" font-family="Tahoma" font-weight="600" fill="white" >[kWh/kWp]</text>      
+  	<text id="svgText3G2"       x="280" y="90" font-size="20px" font-family="Tahoma" font-weight="500" fill="white" text-anchor="middle">0.0</text>  
+    
+  	<text id="svgText4HeaderG2" x="355" y="60" font-size="13px" font-family="Tahoma" font-weight="600"  fill="white">[kW/kWp]</text>      
+  	<text id="svgText4G2"       x="395" y="90" font-size="20px" font-family="Tahoma" font-weight="500" fill="white" text-anchor="middle">0.0</text>  
+
+  	<image id="svgTrafficLightImgG2" x="455" y="35" width="70" height="80px" href="images/tlight_green.gif"/>
+  </g> 
+   <g id="svgButtonPrev" class="hoverGroup button" cursor="pointer" onmousedown="wrController.prevButton.onButtonClick();(evt)" onmouseup="wrController.buttonReleased(evt)">
+        <rect  id="svgButtonPrevRectID"  x="245" y="280" rx="15" ry="15" width="80" height="35"  fill="url(#button_surface3)" stroke="#360000" filter="url(#virtual_light)"/>
+        <text  id="svgButtonPrevTextID" x="285" y="308" fill="yellow"   font-family="Tahoma" font-size="25px" font-weight="800"  text-anchor="middle"  user-select:none> < </text>
+  </g>    
+  <g id="svgButtonNext" class="hoverGroup button" cursor="pointer" onmousedown="wrController.nextButton.onButtonClick();(evt)" onmouseup="wrController.buttonReleased(evt)" >
+        <rect id="svgButtonNextRectID" x="345" y="280" rx="15" ry="15" width="80" height="35"  fill="url(#button_surface3)" stroke="#360000" filter="url(#virtual_light)"/>
+        <text id="svgButtonNextTextID" x="387" y="308" fill="yellow"   font-family="Tahoma" font-size="25px" font-weight="800"  text-anchor="middle" user-select:none>  > </text>
+  </g>   
+         	      	 	
+</svg>
+ <div id="displayDiv"><h4>Logger Output</h4></div>
+</body>
 </html>
